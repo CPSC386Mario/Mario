@@ -34,7 +34,7 @@ class Mario(Sprite):
         self.image = self.small_mario[0]
         self.rect = self.image.get_rect()
         self.rect.x = self.screen_rect.centerx
-        self.rect.y = self.settings.screen_height
+        self.rect.y = self.settings.base_level
         self.y_change = 0
 
     def update(self):
@@ -45,7 +45,7 @@ class Mario(Sprite):
         if self.moving_left:
             self.rect.x -= 1
         if self.jump:
-            if self.rect.bottom >= self.settings.screen_height:
+            if self.rect.bottom >= self.settings.base_level:
                 self.y_change = -5
         self.rect.y += self.y_change
 
@@ -54,9 +54,9 @@ class Mario(Sprite):
             self.y_change = 1
         else:
             self.y_change += .05
-        if self.rect.y >= self.settings.screen_height - self.rect.height and self.y_change >= 0:
+        if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
             self.y_change = 0
-            self.rect.y = self.settings.screen_height - self.rect.height
+            self.rect.y = self.settings.base_level - self.rect.height
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)

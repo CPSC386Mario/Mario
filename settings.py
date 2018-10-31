@@ -9,5 +9,6 @@ class Settings:
         # Sets background color
         self.bg_color = (0, 255, 255)
 
-        # Ship settings
+        # Mario settings
         self.mario_limit = 3
+        self.base_level = self.screen_height - 75
