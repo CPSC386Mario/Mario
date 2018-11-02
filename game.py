@@ -17,8 +17,9 @@ def run_game():
     pipes = Group()
 
     stats = Stats()
-    pipe = Pipe(screen, settings)
-    pipes.add(pipe)
+    for i in range(0, 3):
+        pipe = Pipe(screen, settings, i)
+        pipes.add(pipe)
     mario = Mario(screen, settings, pipes)
     level = Level(screen, settings, pipes)
 
