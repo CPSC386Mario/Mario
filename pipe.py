@@ -27,7 +27,7 @@ class Pipe(Sprite):
 
         self.image = self.small_pipe[0]
         self.rect = self.image.get_rect()
-        self.rect.x = self.screen_rect.centerx
+        self.rect.x = 1000
         self.rect.y = self.settings.base_level-98
 
     def blitme(self):

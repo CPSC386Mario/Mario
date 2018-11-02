@@ -16,11 +16,11 @@ def run_game():
 
     pipes = Group()
 
-    level = Level(screen, settings)
     stats = Stats()
     pipe = Pipe(screen, settings)
     pipes.add(pipe)
     mario = Mario(screen, settings, pipes)
+    level = Level(screen, settings, pipes)
 
     while True:
         if stats.game_active:
