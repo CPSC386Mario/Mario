@@ -2,10 +2,13 @@ import sys
 import pygame
 
 
-def update_screen(screen, mario):
-    screen.fill((0, 255, 255))
+def update_screen(screen, mario, settings, level, pipes, display, stats):
+    screen.fill(settings.bg_color)
     mario.update()
+    level.blitme()
     mario.blitme()
+    pipes.draw(screen)
+    display.score_blit(screen, stats)
     pygame.display.flip()
 
 
@@ -18,12 +21,16 @@ def check_events(screen, mario):
             if event.key == pygame.K_q:
                 sys.exit()
             elif event.key == pygame.K_LEFT:
-                mario.moving_left = True
+                mario.move_left()
             elif event.key == pygame.K_RIGHT:
-                mario.moving_right = True
+                mario.move_right()
+            elif event.key == pygame.K_SPACE:
+                mario.move_jump()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                mario.moving_left = False
+                mario.move_stop()
             elif event.key == pygame.K_RIGHT:
-                mario.moving_right = False
+                mario.move_stop()
+            elif event.key == pygame.K_SPACE:
+                mario.jump = False
