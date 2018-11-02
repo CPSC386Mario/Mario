@@ -11,8 +11,8 @@ class Pipe(Sprite):
         self.screen_rect = screen.get_rect()
 
         self.pipe = []
-        self.pipe_loc = [1060, 1445, 1745, 2160, 6200, 6800]
-        self.height = [85, 126, 169, 169, 85, 85]
+        self.pipe_loc = [1150, 1450, 1800, 2260, 6600, 7200]
+        self.height = [83, 125, 167, 167, 83, 83]
         self.image = pygame.Surface((40, 200))
         sheet = pygame.image.load('images/allsprites.png')
 

@@ -3,7 +3,7 @@ from brick import Brick
 
 class Map:
     """Implements Maze"""
-    BRICK_SIZE = 35
+    BRICK_SIZE = 40
 
     def __init__(self, screen, settings, bricks, mapfile):
         self.screen = screen
@@ -27,13 +27,29 @@ class Map:
                 col = row[ncol]
                 if col == 'B':
                     Map.create_brick(self, ncol*dx, nrow*dy)
+                if col == '?':
+                    Map.create_item_brick(self, ncol * dx, nrow * dy)
+                if col == 'X':
+                    Map.create_bottom_brick(self, ncol * dx, nrow * dy)
 
     def blitme(self):
         for rect in self.bricks:
             self.screen.blit(self.brick.image, rect)
 
     def create_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings)
+        self.brick = Brick(self.screen, self.settings, 0)
+        self.brick.rect.x = x
+        self.brick.rect.y = y
+        self.bricks.add(self.brick)
+
+    def create_item_brick(self, x, y):
+        self.brick = Brick(self.screen, self.settings, 1)
+        self.brick.rect.x = x
+        self.brick.rect.y = y
+        self.bricks.add(self.brick)
+
+    def create_bottom_brick(self, x, y):
+        self.brick = Brick(self.screen, self.settings, 2)
         self.brick.rect.x = x
         self.brick.rect.y = y
         self.bricks.add(self.brick)

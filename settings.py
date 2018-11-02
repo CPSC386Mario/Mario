@@ -4,11 +4,11 @@ class Settings:
     def __init__(self):
         """Initializes the game's static settings"""
 
-        self.screen_width = 800
-        self.screen_height = 600
+        self.screen_width = 1000
+        self.screen_height = 680
         # Sets background color
         self.bg_color = (0, 255, 255)
 
         # Mario settings
         self.mario_limit = 3
-        self.base_level = self.screen_height - 75
+        self.base_level = self.screen_height - 80

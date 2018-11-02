@@ -8,8 +8,8 @@ class Level:
         self.bricks = bricks
         self.lvl_map = lvl_map
         self.pipes = pipes
-        self.image = pygame.image.load('images/level_bg_ref.png')
-        self.image = pygame.transform.scale(self.image, (8500, self.settings.screen_height))
+        self.image = pygame.image.load('images/level_bg.png')
+        self.image = pygame.transform.scale(self.image, (8300, self.settings.screen_height))
         self.rect = self.image.get_rect()
 
         self.shift_world = 0
