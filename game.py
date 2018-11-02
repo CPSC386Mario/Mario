@@ -7,6 +7,7 @@ from settings import Settings
 from level import Level
 from pipe import Pipe
 from block import Block
+from display import Display
 
 
 def run_game():
@@ -25,6 +26,7 @@ def run_game():
     pipes.add(pipe)
     mario = Mario(screen, settings, pipes, blocks)
     level = Level(screen, settings, pipes, blocks)
+    display = Display(screen, stats)
 
     while True:
         if stats.game_active:
@@ -42,7 +44,7 @@ def run_game():
                 mario.rect.left = 120
                 level.shifting_world(diff)
 
-            gf.update_screen(screen, mario, settings, level, pipes, blocks)
+            gf.update_screen(screen, mario, settings, level, pipes, blocks, display, stats)
             pygame.display.flip()
 
 
