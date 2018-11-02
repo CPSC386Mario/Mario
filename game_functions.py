@@ -20,16 +20,16 @@ def check_events(screen, mario):
             if event.key == pygame.K_q:
                 sys.exit()
             elif event.key == pygame.K_LEFT:
-                mario.moving_left = True
+                mario.move_left()
             elif event.key == pygame.K_RIGHT:
-                mario.moving_right = True
+                mario.move_right()
             elif event.key == pygame.K_SPACE:
-                mario.jump = True
+                mario.move_jump()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:
-                mario.moving_left = False
+                mario.move_stop()
             elif event.key == pygame.K_RIGHT:
-                mario.moving_right = False
+                mario.move_stop()
             elif event.key == pygame.K_SPACE:
                 mario.jump = False

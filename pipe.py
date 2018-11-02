@@ -19,10 +19,10 @@ class Pipe(Sprite):
         self.rect = self.image.get_rect()
 
         for i in range(0, 13):
-            temp_img = pygame.Surface((50, 40))
+            temp_img = pygame.Surface((32, 33))
             temp_img.set_colorkey((0, 0, 0))
             temp_img.blit(sheet, (0, 0), (200, i * 20, 40, 40))
-            temp = pygame.transform.scale(temp_img, (140, 120))
+            temp = pygame.transform.scale(temp_img, (90, 100))
             self.small_pipe.append(temp)
 
         self.image = self.small_pipe[0]
