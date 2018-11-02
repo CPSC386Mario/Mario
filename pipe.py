@@ -11,8 +11,8 @@ class Pipe(Sprite):
         self.screen_rect = screen.get_rect()
 
         self.pipe = []
-        self.pipe_loc = [1000, 1400, 1800, 2000, 5100, 5500]
-        self.height = [100, 146, 226]
+        self.pipe_loc = [1000, 1425, 1745, 2100, 6200, 6800]
+        self.height = [100, 146, 208, 208, 100, 100]
         self.image = pygame.Surface((40, 200))
         sheet = pygame.image.load('images/allsprites.png')
 
@@ -25,19 +25,23 @@ class Pipe(Sprite):
         temp_img1.set_colorkey((0, 0, 0))
         temp_img1.blit(sheet, (0, 0), (200, 0, 40, 40))
         temp1 = pygame.transform.scale(temp_img1, (90, 100))
-        self.pipe.append(temp1)
 
         temp_img2 = pygame.Surface((32, 100))
         temp_img2.set_colorkey((0, 0, 0))
         temp_img2.blit(sheet, (0, 0), (200, 40, 40, 50))
         temp2 = pygame.transform.scale(temp_img2, (90, 300))
-        self.pipe.append(temp2)
 
         temp_img3 = pygame.Surface((32, 200))
         temp_img3.set_colorkey((0, 0, 0))
         temp_img3.blit(sheet, (0, 0), (200, 90, 40, 80))
-        temp3 = pygame.transform.scale(temp_img3, (90, 700))
+        temp3 = pygame.transform.scale(temp_img3, (90, 650))
+
+        self.pipe.append(temp1)
+        self.pipe.append(temp2)
         self.pipe.append(temp3)
+        self.pipe.append(temp3)
+        self.pipe.append(temp1)
+        self.pipe.append(temp1)
 
         self.image = self.pipe[self.num]
         self.rect = self.image.get_rect()

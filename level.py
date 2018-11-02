@@ -7,7 +7,7 @@ class Level:
         self.settings = settings
         self.pipes = pipes
         self.image = pygame.image.load('images/level_bg.png')
-        self.image = pygame.transform.scale(self.image, (8000, self.settings.screen_height))
+        self.image = pygame.transform.scale(self.image, (8500, self.settings.screen_height))
         self.rect = self.image.get_rect()
 
         self.shift_world = 0
