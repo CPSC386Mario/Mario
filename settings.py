@@ -1,5 +1,5 @@
 class Settings:
-    """A class to store all settings for Pacman"""
+    """A class to store all settings for Mario"""
 
     def __init__(self):
         """Initializes the game's static settings"""

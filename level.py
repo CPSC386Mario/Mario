@@ -2,11 +2,12 @@ import pygame
 
 
 class Level:
-    def __init__(self, screen, settings, pipes):
+    def __init__(self, screen, settings, pipes, blocks):
         self.screen = screen
         self.settings = settings
         self.pipes = pipes
-        self.image = pygame.image.load('images/level_bg.png')
+        self.blocks = blocks
+        self.image = pygame.image.load('images/level_bg_temp.png')
         self.image = pygame.transform.scale(self.image, (8000, self.settings.screen_height))
         self.rect = self.image.get_rect()
 
@@ -22,3 +23,5 @@ class Level:
 
         for pipe in self.pipes:
             pipe.rect.x += shifting_x
+        for block in self.blocks:
+            block.rect.x += shifting_x

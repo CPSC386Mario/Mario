@@ -2,13 +2,14 @@ import sys
 import pygame
 
 
-def update_screen(screen, mario, settings, level, pipes, display, stats):
+def update_screen(screen, mario, settings, level, pipes, blocks):
     screen.fill(settings.bg_color)
     mario.update()
     level.blitme()
     mario.blitme()
     pipes.draw(screen)
-    display.score_blit(screen, stats)
+    blocks.draw(screen)
+
     pygame.display.flip()
 
 

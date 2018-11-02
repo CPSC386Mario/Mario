@@ -4,11 +4,12 @@ from pygame.sprite import Sprite
 
 class Mario(Sprite):
 
-    def __init__(self, screen, settings, pipes):
+    def __init__(self, screen, settings, pipes, blocks):
         super(Mario, self).__init__()
         self.screen = screen
         self.settings = settings
         self.pipes = pipes
+        self.blocks = blocks
         self.screen_rect = screen.get_rect()
 
         self.small_mario = []
@@ -16,7 +17,7 @@ class Mario(Sprite):
         sheet = pygame.image.load('images/allsprites.png')
 
         self.image.set_colorkey((0, 0, 0))
-        self.image.blit(sheet, (0, 0), (60, 0, 16, 16))
+        self.image.blit(sheet, (0, 0), (59, 0, 16, 16))
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
 
@@ -52,6 +53,14 @@ class Mario(Sprite):
                 # Otherwise if we are moving left, do the opposite.
                 self.rect.left = pipe.rect.right
 
+        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
+        for block in block_collide:
+            if self.x_change > 0:
+                self.rect.right = block.rect.left
+            if self.x_change < 0:
+                # Otherwise if we are moving left, do the opposite.
+                self.rect.left = block.rect.right
+
         self.rect.y += self.y_change
 
         pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
@@ -60,6 +69,15 @@ class Mario(Sprite):
                 self.rect.bottom = pipe.rect.top
             elif self.y_change < 0:
                 self.rect.top = pipe.rect.bottom
+            self.y_change = 0
+
+        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
+        for block in block_collide:
+            if self.y_change > 0:
+                self.rect.bottom = block.rect.top
+            elif self.y_change < 0:
+                self.rect.top = block.rect.bottom
+            self.y_change = 0
 
     def calc_gravity(self):
         if self.y_change == 0:
