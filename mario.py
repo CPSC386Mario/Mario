@@ -71,10 +71,10 @@ class Mario(Sprite):
             self.rect.y = self.settings.base_level - self.rect.height
 
     def move_left(self):
-        self.x_change = -1
+        self.x_change = -5
 
     def move_right(self):
-        self.x_change = 1
+        self.x_change = 5
 
     def move_stop(self):
         self.x_change = 0
