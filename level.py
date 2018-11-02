@@ -1,4 +1,5 @@
 import pygame
+from maze import Maze
 
 
 class Level:
@@ -25,3 +26,4 @@ class Level:
             pipe.rect.x += shifting_x
         for block in self.blocks:
             block.rect.x += shifting_x
+
