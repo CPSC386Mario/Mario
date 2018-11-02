@@ -20,11 +20,6 @@ class Mario(Sprite):
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
 
-        # Movement Flags
-        self.moving_left = False
-        self.moving_right = False
-        self.jump = False
-
         for i in range(0, 13):
             temp_img = pygame.Surface((11, 16))
             temp_img.set_colorkey((0, 0, 0))

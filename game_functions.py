@@ -2,17 +2,20 @@ import sys
 import pygame
 
 
-def update_screen(screen, mario, settings, level, pipes, display, stats):
+def update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks):
     screen.fill(settings.bg_color)
     mario.update()
     level.blitme()
     mario.blitme()
+    #lvl_map.blitme()
+    bricks.draw(screen)
     pipes.draw(screen)
+
     display.score_blit(screen, stats)
     pygame.display.flip()
 
 
-def check_events(screen, mario):
+def check_events(mario):
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
