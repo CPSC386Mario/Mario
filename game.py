@@ -18,7 +18,7 @@ def run_game():
     pipes = Group()
 
     stats = Stats()
-    for i in range(0, 3):
+    for i in range(0, 6):
         pipe = Pipe(screen, settings, i)
         pipes.add(pipe)
 
