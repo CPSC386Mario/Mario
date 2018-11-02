@@ -29,12 +29,12 @@ class Mario(Sprite):
             temp_img = pygame.Surface((11, 16))
             temp_img.set_colorkey((0, 0, 0))
             temp_img.blit(sheet, (0, 0), (60, i * 20, 16, 16))
-            temp = pygame.transform.scale(temp_img, (35, 50))
+            temp = pygame.transform.scale(temp_img, (30, 40))
             self.small_mario.append(temp)
 
         self.image = self.small_mario[0]
         self.rect = self.image.get_rect()
-        self.rect.x = self.screen_rect.centerx/2
+        self.rect.x = 100
         self.rect.y = self.settings.base_level
         self.x_change = 0
         self.y_change = 0
