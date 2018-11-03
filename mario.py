@@ -4,11 +4,12 @@ from pygame.sprite import Sprite
 
 class Mario(Sprite):
 
-    def __init__(self, screen, settings, pipes):
+    def __init__(self, screen, settings, pipes, bricks):
         super(Mario, self).__init__()
         self.screen = screen
         self.settings = settings
         self.pipes = pipes
+        self.bricks = bricks
         self.screen_rect = screen.get_rect()
 
         self.small_mario = []
@@ -30,7 +31,6 @@ class Mario(Sprite):
         self.image = self.small_mario[0]
         self.rect = self.image.get_rect()
         self.rect.x = 100
-        self.rect.y = self.settings.base_level
         self.x_change = 0
         self.y_change = 0
 
@@ -44,7 +44,6 @@ class Mario(Sprite):
             if self.x_change > 0:
                 self.rect.right = pipe.rect.left
             if self.x_change < 0:
-                # Otherwise if we are moving left, do the opposite.
                 self.rect.left = pipe.rect.right
 
         self.rect.y += self.y_change
@@ -55,6 +54,22 @@ class Mario(Sprite):
                 self.rect.bottom = pipe.rect.top
             elif self.y_change < 0:
                 self.rect.top = pipe.rect.bottom
+            self.y_change = 0
+
+        #brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
+        #for brick in brick_collide:
+        #    if self.x_change > 0:
+        #        self.rect.right = brick.rect.left
+        #    if self.x_change < 0:
+        #        self.rect.left = brick.rect.right
+
+        brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
+        for brick in brick_collide:
+            if self.y_change > 0:
+                self.rect.bottom = brick.rect.top
+            elif self.y_change < 0:
+                self.rect.top = brick.rect.bottom
+            self.y_change = 0
 
     def calc_gravity(self):
         if self.y_change == 0:
@@ -66,16 +81,16 @@ class Mario(Sprite):
             self.rect.y = self.settings.base_level - self.rect.height
 
     def move_left(self):
-        self.x_change = -5
+        self.x_change = -3
 
     def move_right(self):
-        self.x_change = 5
+        self.x_change = 3
 
     def move_stop(self):
         self.x_change = 0
 
     def move_jump(self):
-        self.y_change = -5
+        self.y_change = -4
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)

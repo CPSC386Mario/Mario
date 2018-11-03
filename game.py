@@ -24,7 +24,7 @@ def run_game():
         pipe = Pipe(screen, settings, i)
         pipes.add(pipe)
     lvl_map = Map(screen, settings, bricks, mapfile='images/level_loc.txt')
-    mario = Mario(screen, settings, pipes)
+    mario = Mario(screen, settings, pipes, bricks)
     level = Level(screen, settings, pipes, lvl_map, bricks)
     display = Display(screen, stats)
 
@@ -34,15 +34,15 @@ def run_game():
             gf.check_events(mario)
 
             # If the player gets near the right side, shift the world left (-x)
-            if mario.rect.right >= 600:
-                diff = mario.rect.right - 600
-                mario.rect.right = 600
+            if mario.rect.right >= 800:
+                diff = mario.rect.right - 800
+                mario.rect.right = 800
                 level.shifting_world(-diff)
 
             # If the player gets near the left side, shift the world right (+x)
-            if mario.rect.left <= 120:
-                diff = 120 - mario.rect.left
-                mario.rect.left = 120
+            if mario.rect.left <= 100:
+                diff = 100 - mario.rect.left
+                mario.rect.left = 100
                 level.shifting_world(diff)
 
             gf.update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks)

@@ -5,9 +5,8 @@ import pygame
 def update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks):
     screen.fill(settings.bg_color)
     mario.update()
-    level.blitme()
+    # level.blitme()
     mario.blitme()
-    #lvl_map.blitme()
     bricks.draw(screen)
     pipes.draw(screen)
 

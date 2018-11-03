@@ -31,6 +31,10 @@ class Map:
                     Map.create_item_brick(self, ncol * dx, nrow * dy)
                 if col == 'X':
                     Map.create_bottom_brick(self, ncol * dx, nrow * dy)
+                if col == 'M':
+                    Map.create_item_brick(self, ncol * dx, nrow * dy)
+                if col == 'R':
+                    Map.create_stair_brick(self, ncol * dx, nrow * dy)
 
     def blitme(self):
         for rect in self.bricks:
@@ -50,6 +54,12 @@ class Map:
 
     def create_bottom_brick(self, x, y):
         self.brick = Brick(self.screen, self.settings, 2)
+        self.brick.rect.x = x
+        self.brick.rect.y = y
+        self.bricks.add(self.brick)
+
+    def create_stair_brick(self, x, y):
+        self.brick = Brick(self.screen, self.settings, 3)
         self.brick.rect.x = x
         self.brick.rect.y = y
         self.bricks.add(self.brick)
