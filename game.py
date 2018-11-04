@@ -18,13 +18,14 @@ def run_game():
 
     pipes = Group()
     bricks = Group()
+    upgrades = Group()
 
     stats = Stats()
     for i in range(0, 6):
         pipe = Pipe(screen, settings, i)
         pipes.add(pipe)
     lvl_map = Map(screen, settings, bricks, mapfile='images/level_loc.txt')
-    mario = Mario(screen, settings, pipes, bricks)
+    mario = Mario(screen, settings, pipes, bricks, upgrades)
     level = Level(screen, settings, pipes, lvl_map, bricks)
     display = Display(screen, stats)
 
@@ -45,7 +46,7 @@ def run_game():
                 mario.rect.left = 100
                 level.shifting_world(diff)
 
-            gf.update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks)
+            gf.update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks, upgrades)
             pygame.display.flip()
 
 

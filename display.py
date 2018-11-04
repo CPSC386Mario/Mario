@@ -1,7 +1,7 @@
 import pygame
 
 
-class Display():
+class Display:
     def __init__(self, screen, stats):
         self.font = pygame.font.SysFont("monospace", 35)
         self.white = (255, 255, 255)

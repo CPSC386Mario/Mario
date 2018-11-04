@@ -26,3 +26,4 @@ class Level:
             brick.rect.x += shifting_x
         for pipe in self.pipes:
             pipe.rect.x += shifting_x
+

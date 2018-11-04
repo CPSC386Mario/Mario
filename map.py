@@ -28,11 +28,11 @@ class Map:
                 if col == 'B':
                     Map.create_brick(self, ncol*dx, nrow*dy)
                 if col == '?':
-                    Map.create_item_brick(self, ncol * dx, nrow * dy)
+                    Map.create_item_brick(self, ncol * dx, nrow * dy, 1)
                 if col == 'X':
                     Map.create_bottom_brick(self, ncol * dx, nrow * dy)
                 if col == 'M':
-                    Map.create_item_brick(self, ncol * dx, nrow * dy)
+                    Map.create_item_brick(self, ncol * dx, nrow * dy, 2)
                 if col == 'R':
                     Map.create_stair_brick(self, ncol * dx, nrow * dy)
 
@@ -46,20 +46,20 @@ class Map:
         self.brick.rect.y = y
         self.bricks.add(self.brick)
 
-    def create_item_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings, 1)
+    def create_item_brick(self, x, y, num):
+        self.brick = Brick(self.screen, self.settings, num)
         self.brick.rect.x = x
         self.brick.rect.y = y
         self.bricks.add(self.brick)
 
     def create_bottom_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings, 2)
+        self.brick = Brick(self.screen, self.settings, 3)
         self.brick.rect.x = x
         self.brick.rect.y = y
         self.bricks.add(self.brick)
 
     def create_stair_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings, 3)
+        self.brick = Brick(self.screen, self.settings, 4)
         self.brick.rect.x = x
         self.brick.rect.y = y
         self.bricks.add(self.brick)
