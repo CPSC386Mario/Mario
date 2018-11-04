@@ -26,40 +26,27 @@ class Map:
             for ncol in range(len(row)):
                 col = row[ncol]
                 if col == 'B':
-                    Map.create_brick(self, ncol*dx, nrow*dy)
+                    Map.create_brick(self, ncol*dx, nrow*dy, 0)
                 if col == '?':
-                    Map.create_item_brick(self, ncol * dx, nrow * dy, 1)
+                    Map.create_brick(self, ncol * dx, nrow * dy, 1)
                 if col == 'X':
-                    Map.create_bottom_brick(self, ncol * dx, nrow * dy)
+                    Map.create_brick(self, ncol * dx, nrow * dy, 3)
                 if col == 'M':
-                    Map.create_item_brick(self, ncol * dx, nrow * dy, 2)
+                    Map.create_brick(self, ncol * dx, nrow * dy, 2)
                 if col == 'R':
-                    Map.create_stair_brick(self, ncol * dx, nrow * dy)
+                    Map.create_brick(self, ncol * dx, nrow * dy, 4)
+                if col == 'S':
+                    Map.create_brick(self, ncol*dx, nrow*dy, 5)
+                if col == 'I':
+                    Map.create_brick(self, ncol*dx, nrow*dy, 6)
 
     def blitme(self):
         for rect in self.bricks:
             self.screen.blit(self.brick.image, rect)
 
-    def create_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings, 0)
-        self.brick.rect.x = x
-        self.brick.rect.y = y
-        self.bricks.add(self.brick)
-
-    def create_item_brick(self, x, y, num):
+    def create_brick(self, x, y, num):
         self.brick = Brick(self.screen, self.settings, num)
         self.brick.rect.x = x
         self.brick.rect.y = y
         self.bricks.add(self.brick)
 
-    def create_bottom_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings, 3)
-        self.brick.rect.x = x
-        self.brick.rect.y = y
-        self.bricks.add(self.brick)
-
-    def create_stair_brick(self, x, y):
-        self.brick = Brick(self.screen, self.settings, 4)
-        self.brick.rect.x = x
-        self.brick.rect.y = y
-        self.bricks.add(self.brick)

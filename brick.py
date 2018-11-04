@@ -18,6 +18,9 @@ class Brick(Sprite):
         self.bottom_brick = "images/Ground_Brick.png"
         self.stair_brick = "images/Stair_Brick.png"
         self.empty_brick = "images/Empty_Brick.png"
+        self.invisible_brick = "images/Invisible_Block.png"
+
+        # Checks what type of brick needs to be drawn
         if block_type == 0:
             self.image = pygame.image.load(self.brick)
         if block_type == 1:
@@ -28,6 +31,11 @@ class Brick(Sprite):
             self.image = pygame.image.load(self.bottom_brick)
         if block_type == 4:
             self.image = pygame.image.load(self.stair_brick)
+        if block_type == 5:
+            self.image = pygame.image.load(self.brick)
+        if block_type == 6:
+            self.image = pygame.image.load(self.invisible_brick)
+
         self.image = pygame.transform.scale(self.image, (self.sz, self.sz))
 
         self.rect = self.image.get_rect()
