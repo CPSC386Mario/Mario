@@ -68,7 +68,6 @@ class Upgrade(Sprite):
         if not self.stop_left:
             self.move_left()
 
-
     def move_right(self):
         self.x_change = 1
 

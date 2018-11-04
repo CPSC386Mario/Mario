@@ -79,11 +79,15 @@ class Mario(Sprite):
                 if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y:
                     brick.change_brick = True
                     upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
-                                      brick.rect.x, brick.rect.y + 20)
+                                      brick.rect.x, brick.rect.y - 20)
                     self.upgrades.add(upgrade)
             if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
                     and brick.block_type == 1:
                 brick.change()
+
+        mushroom_collide = pygame.sprite.spritecollide(self, self.upgrades, True)
+        #if mushroom_collide:
+
 
     def calc_gravity(self):
         if self.y_change == 0:
