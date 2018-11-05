@@ -37,7 +37,8 @@ def check_events(mario):
             elif event.key == pygame.K_RIGHT:
                 mario.move_right()
             elif event.key == pygame.K_SPACE:
-                mario.move_jump()
+                if mario.y_change == 0:
+                    mario.move_jump()
 
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_LEFT:

@@ -76,8 +76,7 @@ class Mario(Sprite):
 
         self.image = self.small_mario[0]
         self.rect = self.image.get_rect()
-        self.rect.x = 200
-        self.rect.y = self.settings.base_level
+        self.rect.x = 100
         self.x_change = 0
         self.y_change = 0
 
@@ -421,6 +420,13 @@ class Mario(Sprite):
                 self.rect.top = pipe.rect.bottom
             self.y_change = 0
 
+        brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
+        for brick in brick_collide:
+            if self.rect.right >= brick.rect.left and brick.rect.bottom == self.rect.bottom:
+                self.x_change = 0
+            if self.rect.left <= brick.rect.right and brick.rect.bottom == self.rect.bottom:
+                self.x_change = 0
+
         # Checks collision with the bricks from the top and bottom so that he can stand on them and not go through them
         brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
         for brick in brick_collide:
@@ -499,10 +505,12 @@ class Mario(Sprite):
         if self.y_change == 0:
             self.y_change = 1
         else:
-            self.y_change += .05
-        if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
-            self.y_change = 0
-            self.rect.y = self.settings.base_level - self.rect.height
+            self.y_change += .1
+
+        # Commented so that Mario can fall thru the pit
+        #if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
+            #self.y_change = 0
+            #self.rect.y = self.settings.base_level - self.rect.height
 
     def move_left(self):
         if self.rect.left <= 20:
