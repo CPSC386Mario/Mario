@@ -5,7 +5,7 @@ from upgrade import Upgrade
 
 class Mario(Sprite):
 
-    def __init__(self, screen, settings, pipes, bricks, upgrades, stats):
+    def __init__(self, screen, settings, pipes, bricks, upgrades, stats, enemies):
         super(Mario, self).__init__()
         self.screen = screen
         self.settings = settings
@@ -13,38 +13,394 @@ class Mario(Sprite):
         self.pipes = pipes
         self.bricks = bricks
         self.upgrades = upgrades
+        self.enemies = enemies
         self.screen_rect = screen.get_rect()
 
         self.small_mario = []
+        self.small_star_mario = []
+        self.shroom_mario = []
+        self.flower_mario = []
+        self.star_mario = []
         self.image = pygame.Surface((16, 16))
         sheet = pygame.image.load('images/allsprites.png')
 
         self.image.set_colorkey((0, 0, 0))
-        self.image.blit(sheet, (0, 0), (60, 0, 16, 16))
-        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.image.blit(sheet, (0, 0), (59, 0, 17, 16))
+        self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
 
+        # Movement Flags
+        self.moving_left = False
+        self.moving_right = False
+        self.jump = False
+        self.facing_right = True
+
         for i in range(0, 13):
-            temp_img = pygame.Surface((11, 16))
+            # base mario
+            temp_img = pygame.Surface((17, 16))
             temp_img.set_colorkey((0, 0, 0))
-            temp_img.blit(sheet, (0, 0), (60, i * 20, 16, 16))
-            temp = pygame.transform.scale(temp_img, (30, 40))
+            temp_img.blit(sheet, (0, 0), (59, i * 20, 17, 16))
+            temp = pygame.transform.scale(temp_img, (40, 40))
             self.small_mario.append(temp)
+            # small star mario
+            temp_img = pygame.Surface((17, 16))
+            temp_img.set_colorkey((0, 0, 0))
+            temp_img.blit(sheet, (0, 0), (80, i * 20, 17, 16))
+            temp = pygame.transform.scale(temp_img, (40, 40))
+            self.small_star_mario.append(temp)
+
+            temp_img = pygame.Surface((17, 16))
+            temp_img.set_colorkey((0, 0, 0))
+            temp_img.blit(sheet, (0, 0), (100, i * 20, 17, 16))
+            temp = pygame.transform.scale(temp_img, (40, 40))
+            self.small_star_mario.append(temp)
+            # shroom mario
+            temp_img = pygame.Surface((17, 32))
+            temp_img.set_colorkey((0, 0, 0))
+            temp_img.blit(sheet, (0, 0), (120, i * 40, 17, 32))
+            temp = pygame.transform.scale(temp_img, (40, 60))
+            self.shroom_mario.append(temp)
+            # flower mario
+            temp_img = pygame.Surface((17, 32))
+            temp_img.set_colorkey((0, 0, 0))
+            temp_img.blit(sheet, (0, 0), (140, i * 40, 17, 32))
+            temp = pygame.transform.scale(temp_img, (40, 60))
+            self.flower_mario.append(temp)
+            self.star_mario.append(temp)
+            # star mario
+            temp_img = pygame.Surface((17, 32))
+            temp_img.set_colorkey((0, 0, 0))
+            temp_img.blit(sheet, (0, 0), (160, i * 40, 17, 32))
+            temp = pygame.transform.scale(temp_img, (40, 60))
+            self.star_mario.append(temp)
 
         self.image = self.small_mario[0]
         self.rect = self.image.get_rect()
-        self.rect.x = 100
+        self.rect.x = 200
+        self.rect.y = self.settings.base_level
         self.x_change = 0
         self.y_change = 0
 
-        self.mario_big = False
-        self.mario_fire = False
-        self.mario_invincible = False
+        self.frame_counter = 0
+        self.flash_frame = 0
+
+        # if fired is true, shroomed must be true, but can have shroom true and fired false
+        # set shroomed and star true for big star mario
+        self.dead = False
+        self.shroomed = False
+        self.fired = False
+        self.star_pow = False
+
+        # upgrades
+        # self.mario_big = False --> shroomed
+        # self.mario_fire = False --> fired
+        # self.mario_invincible = False --> star_pow
 
     def update(self):
+        if self.dead:
+            self.die_animate()
+        else:
+            if not self.shroomed and not self.star_pow:
+                self.update_small()
+            elif self.star_pow and not self.shroomed:
+                self.update_star()
+            elif self.shroomed and not self.fired and not self.star_pow:
+                self.update_shroomed()
+            elif self.fired and not self.star_pow:
+                self.update_flowered()
+            elif self.shroomed and self.star_pow:
+                self.update_big_star()
+
+    def update_small(self):
+        self.move()
+        if self.rect.y == self.settings.base_level - self.rect.height:
+            self.jump = False
+
+        if not self.moving_right and not self.moving_left and not self.jump:
+            if self.facing_right:
+                self.image = self.small_mario[0]
+            else:
+                self.image = self.small_mario[6]
+        if self.moving_right and not self.jump:
+            self.right_animate()
+        if self.facing_right and self.jump:
+            self.image = self.small_mario[5]
+        if self.moving_left and not self.jump:
+            self.left_animate()
+        if not self.facing_right and self.jump:
+            self.image = self.small_mario[11]
+
+    def update_shroomed(self):
+        self.move()
+        if self.rect.y == self.settings.base_level - self.rect.height:
+            self.jump = False
+
+        if not self.moving_right and not self.moving_left and not self.jump:
+            if self.facing_right:
+                self.image = self.shroom_mario[0]
+            else:
+                self.image = self.shroom_mario[6]
+        if self.moving_right and not self.jump:
+            self.big_right_animate()
+        if self.facing_right and self.jump:
+            self.image = self.shroom_mario[5]
+        if self.moving_left and not self.jump:
+            self.big_left_animate()
+        if not self.facing_right and self.jump:
+            self.image = self.shroom_mario[11]
+
+    def update_flowered(self):
+        self.move()
+        if self.rect.y == self.settings.base_level - self.rect.height:
+            self.jump = False
+
+        if not self.moving_right and not self.moving_left and not self.jump:
+            if self.facing_right:
+                self.image = self.flower_mario[0]
+            else:
+                self.image = self.flower_mario[6]
+        if self.moving_right and not self.jump:
+            self.flower_right_animate()
+        if self.facing_right and self.jump:
+            self.image = self.flower_mario[5]
+        if self.moving_left and not self.jump:
+            self.flower_left_animate()
+        if not self.facing_right and self.jump:
+            self.image = self.flower_mario[11]
+
+    def update_star(self):
+        self.move()
+        if self.rect.y == self.settings.base_level - self.rect.height:
+            self.jump = False
+
+        if not self.moving_right and not self.moving_left and not self.jump:
+            self.star_flash()
+        if self.moving_right and not self.jump:
+            self.right_star_flash()
+        if self.facing_right and self.jump:
+            self.right_star_jump()
+        if self.moving_left and not self.jump:
+            self.left_star_flash()
+        if not self.facing_right and self.jump:
+            self.left_star_jump()
+
+    def update_big_star(self):
+        self.move()
+        if self.rect.y == self.settings.base_level - self.rect.height:
+            self.jump = False
+
+        if not self.moving_right and not self.moving_left and not self.jump:
+            self.big_star_flash()
+        if self.moving_right and not self.jump:
+            self.big_right_star_flash()
+        if self.facing_right and self.jump:
+            self.big_right_star_jump()
+        if self.moving_left and not self.jump:
+            self.big_left_star_flash()
+        if not self.facing_right and self.jump:
+            self.big_left_star_jump()
+
+    def star_flash(self):
+        if self.frame_counter <= 50:
+            if self.facing_right:
+                self.image = self.small_star_mario[0]
+            else:
+                self.image = self.small_star_mario[12]
+        elif self.frame_counter <= 100:
+            if self.facing_right:
+                self.image = self.small_star_mario[1]
+            else:
+                self.image = self.small_star_mario[13]
+        elif self.frame_counter <= 150:
+            if self.facing_right:
+                self.image = self.small_mario[0]
+            else:
+                self.image = self.small_mario[6]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def right_star_jump(self):
+        if self.frame_counter <= 50:
+            self.image = self.small_star_mario[10]
+        elif self.frame_counter <= 100:
+            self.image = self.small_star_mario[11]
+        elif self.frame_counter <= 150:
+            self.image = self.small_mario[5]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def right_star_flash(self):
+        if self.frame_counter <= 50:
+            self.image = self.small_star_mario[2]
+        elif self.frame_counter <= 100:
+            self.image = self.small_star_mario[5]
+        elif self.frame_counter <= 150:
+            self.image = self.small_mario[3]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def right_animate(self):
+        if self.frame_counter <= 50:
+            self.image = self.small_mario[1]
+        elif self.frame_counter <= 100:
+            self.image = self.small_mario[2]
+        elif self.frame_counter <= 150:
+            self.image = self.small_mario[3]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def left_star_jump(self):
+        if self.frame_counter <= 50:
+            self.image = self.small_star_mario[22]
+        elif self.frame_counter <= 100:
+            self.image = self.small_star_mario[23]
+        elif self.frame_counter <= 150:
+            self.image = self.small_mario[11]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def left_star_flash(self):
+        if self.frame_counter <= 50:
+            self.image = self.small_star_mario[14]
+        elif self.frame_counter <= 100:
+            self.image = self.small_star_mario[17]
+        elif self.frame_counter <= 150:
+            self.image = self.small_mario[9]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def left_animate(self):
+        if self.frame_counter <= 50:
+            self.image = self.small_mario[7]
+        elif self.frame_counter <= 100:
+            self.image = self.small_mario[8]
+        elif self.frame_counter <= 150:
+            self.image = self.small_mario[9]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_star_flash(self):
+        if self.frame_counter <= 50:
+            if self.facing_right:
+                self.image = self.star_mario[0]
+            else:
+                self.image = self.star_mario[12]
+        elif self.frame_counter <= 100:
+            if self.facing_right:
+                self.image = self.star_mario[1]
+            else:
+                self.image = self.star_mario[13]
+        elif self.frame_counter <= 150:
+            if self.facing_right:
+                self.image = self.shroom_mario[0]
+            else:
+                self.image = self.shroom_mario[6]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_right_star_jump(self):
+        if self.frame_counter <= 50:
+            self.image = self.star_mario[10]
+        elif self.frame_counter <= 100:
+            self.image = self.star_mario[11]
+        elif self.frame_counter <= 150:
+            self.image = self.shroom_mario[5]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_right_star_flash(self):
+        if self.frame_counter <= 50:
+            self.image = self.star_mario[2]
+        elif self.frame_counter <= 100:
+            self.image = self.star_mario[5]
+        elif self.frame_counter <= 150:
+            self.image = self.shroom_mario[3]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_right_animate(self):
+        if self.frame_counter <= 50:
+            self.image = self.shroom_mario[1]
+        elif self.frame_counter <= 100:
+            self.image = self.shroom_mario[2]
+        elif self.frame_counter <= 150:
+            self.image = self.shroom_mario[3]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_left_star_jump(self):
+        if self.frame_counter <= 50:
+            self.image = self.star_mario[22]
+        elif self.frame_counter <= 100:
+            self.image = self.star_mario[23]
+        elif self.frame_counter <= 150:
+            self.image = self.shroom_mario[11]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_left_star_flash(self):
+        if self.frame_counter <= 50:
+            self.image = self.star_mario[14]
+        elif self.frame_counter <= 100:
+            self.image = self.star_mario[17]
+        elif self.frame_counter <= 150:
+            self.image = self.shroom_mario[9]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def big_left_animate(self):
+        if self.frame_counter <= 50:
+            self.image = self.shroom_mario[7]
+        elif self.frame_counter <= 100:
+            self.image = self.shroom_mario[8]
+        elif self.frame_counter <= 150:
+            self.image = self.shroom_mario[9]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def flower_right_animate(self):
+        if self.frame_counter <= 50:
+            self.image = self.flower_mario[1]
+        elif self.frame_counter <= 100:
+            self.image = self.flower_mario[2]
+        elif self.frame_counter <= 150:
+            self.image = self.flower_mario[3]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def flower_left_animate(self):
+        if self.frame_counter <= 50:
+            self.image = self.flower_mario[7]
+        elif self.frame_counter <= 100:
+            self.image = self.flower_mario[8]
+        elif self.frame_counter <= 150:
+            self.image = self.flower_mario[9]
+        else:
+            self.frame_counter = 0
+        self.frame_counter += 4
+
+    def move(self):
         self.calc_gravity()
 
-        self.rect.x += self.x_change
+        if self.rect.left > 20:
+            self.rect.x += self.x_change
+        else:
+            self.rect.x = 22
 
         # Checks if Mario collides with a pipe from the sides and prevents him from moving into it
         pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
@@ -55,6 +411,7 @@ class Mario(Sprite):
                 self.rect.left = pipe.rect.right
 
         self.rect.y += self.y_change
+
         # Checks if Mario collides with a pipe from the top and allows him to stand on it
         pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
         for pipe in pipe_collide:
@@ -63,13 +420,6 @@ class Mario(Sprite):
             elif self.y_change < 0:
                 self.rect.top = pipe.rect.bottom
             self.y_change = 0
-
-        #brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
-        #for brick in brick_collide:
-        #    if self.x_change > 0:
-        #        self.rect.right = brick.rect.left
-        #    if self.x_change < 0:
-        #        self.rect.left = brick.rect.right
 
         # Checks collision with the bricks from the top and bottom so that he can stand on them and not go through them
         brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
@@ -103,14 +453,14 @@ class Mario(Sprite):
                 brick.change()
                 # Checks if it is a ? block with a mushroom in it and spawns one when hit and change block to empty
                 if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y \
-                        and not self.mario_big:
+                        and not self.shroomed:
                     brick.change_brick = True
                     upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
                                       brick.rect.x, brick.rect.y - 20, 0)
                     self.upgrades.add(upgrade)
                 # Checks if Mario is big and if he is then mushroom block spawns a fire flower and change block to empty
                 if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y \
-                        and self.mario_big:
+                        and self.shroomed:
                     brick.change_brick = True
                     upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
                                       brick.rect.x, brick.rect.y - 40, 1)
@@ -122,20 +472,27 @@ class Mario(Sprite):
 
             # Check if Mario is big and below the block and if he is and hits it the brick is removed
             if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
-                    and brick.block_type == 0 and self.mario_big:
+                    and brick.block_type == 0 and self.shroomed:
                 self.bricks.remove(brick)
 
         # Checks if Mario ate the mushroom, fire flower, or star and if he did set the corresponding flag to true
         upgrade_collide = pygame.sprite.spritecollide(self, self.upgrades, True)
         for upgrade in upgrade_collide:
             if upgrade.up_type == 0:
-                self.mario_big = True
-            if upgrade.up_type == 1 and self.mario_big:
-                self.mario_fire = True
+                self.shroomed = True
+            if upgrade.up_type == 1 and self.shroomed:
+                self.fired = True
             if upgrade.up_type == 1:
                 self.stats.lives += 1
             if upgrade.up_type == 3:
-                self.mario_invincible = True
+                self.star_pow = True
+
+        enemy_collide = pygame.sprite.spritecollide(self, self.enemies, False)
+        for enemy in enemy_collide:
+            if enemy.rect.y > self.rect.y:
+                self.enemies.remove(enemy)
+            else:
+                self.dead = True
 
     def calc_gravity(self):
         """Calculates gravity and pulls Mario back down after being in the air for a period of time"""
@@ -148,16 +505,36 @@ class Mario(Sprite):
             self.rect.y = self.settings.base_level - self.rect.height
 
     def move_left(self):
-        self.x_change = -3
+        if self.rect.left <= 20:
+            self.x_change = 0
+        else:
+            self.x_change = -3
+        self.moving_left = True
+        self.facing_right = False
 
     def move_right(self):
-        self.x_change = 3
+        # self.x_change = 1
+        self.x_change = 5
+        self.moving_right = True
+        self.facing_right = True
 
     def move_stop(self):
         self.x_change = 0
+        self.moving_left = False
+        self.moving_right = False
 
     def move_jump(self):
-        self.y_change = -4
+        self.y_change = -5
+        self.jump = True
 
     def blitme(self):
         self.screen.blit(self.image, self.rect)
+
+    def die_animate(self):
+        if self.frame_counter == 0:
+            self.image = self.small_mario[12]
+        elif self.frame_counter <= 100:
+            self.rect.y -= 2
+        elif self.frame_counter <= 200:
+            self.rect.y += 2
+        self.frame_counter += 1

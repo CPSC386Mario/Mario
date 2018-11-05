@@ -19,14 +19,15 @@ def run_game():
     pipes = Group()
     bricks = Group()
     upgrades = Group()
+    enemies = Group()
 
     stats = Stats()
     for i in range(0, 6):
         pipe = Pipe(screen, settings, i)
         pipes.add(pipe)
-    lvl_map = Map(screen, settings, bricks, mapfile='images/level_loc.txt')
-    mario = Mario(screen, settings, pipes, bricks, upgrades, stats)
-    level = Level(screen, settings, pipes, lvl_map, bricks, upgrades)
+    lvl_map = Map(screen, settings, bricks, pipes, enemies, mapfile='images/level_loc.txt')
+    mario = Mario(screen, settings, pipes, bricks, upgrades, stats, enemies)
+    level = Level(screen, settings, pipes, lvl_map, bricks, upgrades, enemies)
     display = Display(screen, stats)
 
     lvl_map.build_brick()
@@ -41,12 +42,12 @@ def run_game():
                 level.shifting_world(-diff)
 
             # If the player gets near the left side, shift the world right (+x)
-            if mario.rect.left <= 100:
-                diff = 100 - mario.rect.left
-                mario.rect.left = 100
-                level.shifting_world(diff)
+            #if mario.rect.left <= 100:
+            #    diff = 100 - mario.rect.left
+            #    mario.rect.left = 100
+            #   level.shifting_world(diff)
 
-            gf.update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks, upgrades)
+            gf.update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map, bricks, upgrades, enemies)
             pygame.display.flip()
 
 

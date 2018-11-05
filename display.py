@@ -66,6 +66,12 @@ class Display:
         self.current_lives_rect.centerx = screen.get_rect().centerx + 320
         self.current_lives_rect.centery = screen.get_rect().top + 45
 
+        # GAME OVER
+        self.over = self.font.render("GAME OVER", True, self.white)
+        self.over_rect = self.over.get_rect()
+        self.over_rect.centerx = screen.get_rect().centerx
+        self.over_rect.centery = screen.get_rect().centery
+
     def score_blit(self, screen, stats):
         # Update current score numbers
         self.current_score = self.font.render(str(stats.score), True, self.white)
@@ -83,3 +89,6 @@ class Display:
         screen.blit(self.current_time, self.current_time_rect)
         screen.blit(self.lives, self.lives_rect)
         screen.blit(self.current_lives, self.current_lives_rect)
+
+    def over_blit(self, screen):
+        screen.blit(self.over, self.over_rect)
