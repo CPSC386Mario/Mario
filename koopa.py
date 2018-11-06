@@ -4,13 +4,15 @@ from pygame.sprite import Sprite
 
 class Koopa(Sprite):
 
-    def __init__(self, screen, settings, pipes, blocks):
+    def __init__(self, screen, settings, pipes, blocks, enemies, mario):
         super(Koopa, self).__init__()
         self.screen = screen
         self.settings = settings
         self.pipes = pipes
         self.blocks = blocks
         self.screen_rect = screen.get_rect()
+        self.enemies = enemies
+        self.mario = mario
 
         self.frames = []
         self.image = pygame.Surface((15, 15))
@@ -22,6 +24,7 @@ class Koopa(Sprite):
         self.rect = self.image.get_rect()
 
         self.moving_left = False
+        self.kicked = False
 
         for i in range(0, 5):
             temp_img = pygame.Surface((16, 23))
@@ -38,9 +41,19 @@ class Koopa(Sprite):
         self.frame_counter = 0
         self.stunned = False
 
+        # allows for Mario to check the difference between Goomba and Koopa
+        self.enemy_type = 1
+
     def update(self):
         if self.stunned:
             self.image = self.frames[4]
+            if self.kicked:
+                self.move()
+                # Kills all enemies it comes into contact with in shell form
+                pygame.sprite.spritecollide(self, self.enemies, True)
+                if pygame.sprite.spritecollide(self, self.mario, False):
+                    self.mario.dead = True
+
         else:
             self.move()
             if self.frame_counter <= 100:

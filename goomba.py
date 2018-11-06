@@ -40,6 +40,8 @@ class Goomba(Sprite):
         self.y_change = 0.0
 
         self.frame_counter = 0
+        # allows for Mario to check the difference between Goomba and Koopa
+        self.enemy_type = 0
 
     def update(self):
         self.move()

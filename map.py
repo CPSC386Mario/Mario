@@ -7,11 +7,12 @@ class Map:
     """Implements Maze"""
     BRICK_SIZE = 40
 
-    def __init__(self, screen, settings, bricks, pipes, enemies, mapfile):
+    def __init__(self, screen, settings, bricks, pipes, mario,enemies, mapfile):
         self.screen = screen
         self.settings = settings
         self.bricks = bricks
         self.pipes = pipes
+        self.mario = mario
         self.enemies = enemies
         self.filename = mapfile
         with open(self.filename, 'r') as f:
@@ -67,7 +68,7 @@ class Map:
             self.goomba.rect.y = y
             self.enemies.add(self.goomba)
         if num == 1:
-            self.koopa = Koopa(self.screen, self.settings, self.pipes, self.bricks)
+            self.koopa = Koopa(self.screen, self.settings, self.pipes, self.bricks, self.enemies, self.mario)
             self.koopa.rect.x = x
             self.koopa.rect.y = y
             self.enemies.add(self.koopa)

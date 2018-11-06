@@ -6,10 +6,13 @@ class Stats:
     def __init__(self):
         self.game_active = True
         self.game_over = False
+        self.reached_pole = False
+        self.flag_reach_bot = False
         self.score = 0
         self.coins = 0
         self.time = 400
         self.lives = 3
+        self.timer = 0
 
         self.tick = pygame.time.get_ticks()
 
