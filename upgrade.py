@@ -18,7 +18,6 @@ class Upgrade(Sprite):
         self.fireflower = "images/Fire_Flower.png"
         self.life_mushroom = "images/1UP_Mushroom.png"
         self.star = "images/Star.png"
-        self.coin = "images/Coin.png"
         if self.up_type == 0:
             self.image = pygame.image.load(self.mushroom)
         if self.up_type == 1:
@@ -27,8 +26,6 @@ class Upgrade(Sprite):
             self.image = pygame.image.load(self.life_mushroom)
         if self.up_type == 3:
             self.image = pygame.image.load(self.star)
-        if self.up_type == 4:
-            self.image = pygame.image.load(self.coin)
         self.image = pygame.transform.scale(self.image, (self.sz, self.sz))
 
         self.rect = self.image.get_rect()
