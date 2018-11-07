@@ -34,7 +34,7 @@ class Goomba(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.x_change = 0.5
+        self.x_change = -1
         self.y_change = 0.0
 
         self.frame_counter = 0
@@ -54,6 +54,9 @@ class Goomba(Sprite):
 
     def move(self):
         self.calc_gravity()
+
+        self.rect.x += self.x_change
+        self.rect.y += self.y_change
 
         pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
         for pipe in pipe_collide:
@@ -79,14 +82,11 @@ class Goomba(Sprite):
                 self.rect.bottom = block.rect.top
             self.y_change = 0
 
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
-
     def calc_gravity(self):
         if self.y_change == 0:
             self.y_change = 1
         else:
-            self.y_change += .05
+            self.y_change += .1
         if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
             self.y_change = 0
             self.rect.y = self.settings.base_level - self.rect.height

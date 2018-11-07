@@ -35,11 +35,12 @@ class Koopa(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.x_change = 0.5
+        self.x_change = -1
         self.y_change = 0.0
 
         self.frame_counter = 0
         self.stunned = False
+        self.set_direction = False
 
         # allows for Mario to check the difference between Goomba and Koopa
         self.enemy_type = 1
@@ -48,11 +49,22 @@ class Koopa(Sprite):
         if self.stunned:
             self.image = self.frames[4]
             if self.kicked:
-                self.move()
                 # Kills all enemies it comes into contact with in shell form
-                pygame.sprite.spritecollide(self, self.enemies, True)
-                if pygame.sprite.spritecollide(self, self.mario, False):
-                    self.mario.dead = True
+
+                if self.rect.x >= self.mario.rect.x:
+                    if not self.set_direction:
+                        self.x_change = 3
+                        self.set_direction = True
+                    self.move()
+                if self.kicked and self.rect.x <= self.mario.rect.x:
+                    if not self.set_direction:
+                        self.x_change = -3
+                        self.set_direction = True
+                    self.move()
+                collide_enemies = pygame.sprite.spritecollide(self, self.enemies, False)
+                for enemy in collide_enemies:
+                    if enemy.enemy_type == 0:
+                        self.enemies.remove(enemy)
 
         else:
             self.move()
