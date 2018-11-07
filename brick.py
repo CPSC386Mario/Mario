@@ -41,6 +41,21 @@ class Brick(Sprite):
         self.rect = self.image.get_rect()
         self.screen_rect = screen.get_rect()
 
+        self.og_pos = self.rect.y
+        self.frame_counter = 0
+        self.bouncing = False
+
     def change(self):
         self.image = pygame.image.load(self.empty_brick)
         self.image = pygame.transform.scale(self.image, (self.sz, self.sz))
+
+    def update(self):
+        if self.bouncing:
+            if self.frame_counter <= 5:
+                self.rect.y -= 1
+            elif self.frame_counter <= 10:
+                self.rect.y += 1
+            else:
+                self.frame_counter = 0
+                self.bouncing = False
+            self.frame_counter += 1

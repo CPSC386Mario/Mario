@@ -2,15 +2,18 @@ import pygame
 
 
 class Level:
-    def __init__(self, screen, settings, pipes, lvl_map, bricks, upgrades):
+    def __init__(self, screen, settings, pipes, lvl_map, bricks, upgrades, enemies, flag, poles):
         self.screen = screen
         self.settings = settings
         self.bricks = bricks
         self.lvl_map = lvl_map
         self.pipes = pipes
         self.upgrades = upgrades
+        self.enemies = enemies
+        self.flag = flag
+        self.poles = poles
         self.image = pygame.image.load('images/level_bg.png')
-        self.image = pygame.transform.scale(self.image, (8300, self.settings.screen_height))
+        self.image = pygame.transform.scale(self.image, (9000, self.settings.screen_height))  # 8300
         self.rect = self.image.get_rect()
 
         self.shift_world = 0
@@ -23,9 +26,15 @@ class Level:
 
         self.rect.x += shifting_x
 
+        self.flag.rect.x += shifting_x
+        for pole in self.poles:
+            pole.rect.x += shifting_x
+
         for brick in self.bricks:
             brick.rect.x += shifting_x
         for pipe in self.pipes:
             pipe.rect.x += shifting_x
         for upgrade in self.upgrades:
             upgrade.rect.x += shifting_x
+        for enemy in self.enemies:
+            enemy.x += shifting_x

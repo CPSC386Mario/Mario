@@ -4,13 +4,15 @@ from pygame.sprite import Sprite
 
 class Koopa(Sprite):
 
-    def __init__(self, screen, settings, pipes, blocks):
+    def __init__(self, screen, settings, pipes, blocks, enemies, mario):
         super(Koopa, self).__init__()
         self.screen = screen
         self.settings = settings
         self.pipes = pipes
         self.blocks = blocks
         self.screen_rect = screen.get_rect()
+        self.enemies = enemies
+        self.mario = mario
 
         self.frames = []
         self.image = pygame.Surface((15, 15))
@@ -21,7 +23,8 @@ class Koopa(Sprite):
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
 
-        self.moving_left = False
+        self.moving_left = True
+        self.kicked = False
 
         for i in range(0, 5):
             temp_img = pygame.Surface((16, 23))
@@ -32,19 +35,22 @@ class Koopa(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.rect.x = self.screen_rect.centerx/2
-        self.rect.bottom = self.settings.base_level
+        self.x_change = -0.5
+        self.y_change = 0.0
         self.x = self.rect.x
         self.y = self.rect.y
-        self.x_change = 0.5
-        self.y_change = 0.0
 
         self.frame_counter = 0
         self.stunned = False
 
-    def update(self):
+        # allows for Mario to check the difference between Goomba and Koopa
+        self.enemy_type = 1
+
+    def update(self, mario):
         if self.stunned:
             self.image = self.frames[4]
+            if self.kicked:
+                self.move()
         else:
             self.move()
             if self.frame_counter <= 100:
@@ -63,39 +69,29 @@ class Koopa(Sprite):
                 self.frame_counter = 0
 
     def move(self):
-        self.calc_gravity()
+        collision = pygame.sprite.spritecollide(self, self.blocks, False)
+        if abs(self.rect.x - self.mario.rect.x) <= 2000 or not collision:
+            self.calc_gravity()
 
-        pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
-        for pipe in pipe_collide:
-            if self.x_change > 0:
-                self.rect.right = pipe.rect.left
-            if self.x_change < 0:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = pipe.rect.right
-            self.x_change *= -1
-            self.swap_bool()
+            pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
+            for pipe in pipe_collide:
+                if self.x_change > 0:
+                    self.rect.right = pipe.rect.left - 2
+                if self.x_change < 0:
+                    # Otherwise if we are moving left, do the opposite.
+                    self.rect.left = pipe.rect.right + 2
+                self.x_change *= -1
+                self.swap_bool()
 
-        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
-        for block in block_collide:
-            if self.x_change > 0:
-                self.rect.right = block.rect.left
-            if self.x_change < 0:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-            self.x_change *= -1
-            self.swap_bool()
+            if self.stunned:
+                self.x += self.x_change * 8
+                self.y += self.y_change * 8
+            else:
+                self.x += self.x_change
+                self.y += self.y_change
 
-        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
-        for block in block_collide:
-            if self.y_change > 0:
-                self.rect.bottom = block.rect.top
-            self.y_change = 0
-
-        self.x += self.x_change
-        self.y += self.y_change
-
-        self.rect.x = self.x
-        self.rect.y = self.y
+            self.rect.x = self.x
+            self.rect.y = self.y
 
     def calc_gravity(self):
         if self.y_change == 0:

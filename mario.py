@@ -5,14 +5,18 @@ from upgrade import Upgrade
 
 class Mario(Sprite):
 
-    def __init__(self, screen, settings, pipes, bricks, upgrades, stats):
+    def __init__(self, screen, settings, pipes, bricks, upgrades, stats, enemies, poles, radio, clips):
         super(Mario, self).__init__()
+        self.clips = clips
+        self.radio = radio
         self.screen = screen
         self.settings = settings
         self.stats = stats
         self.pipes = pipes
         self.bricks = bricks
         self.upgrades = upgrades
+        self.enemies = enemies
+        self.poles = poles
         self.screen_rect = screen.get_rect()
 
         self.small_mario = []
@@ -73,15 +77,21 @@ class Mario(Sprite):
             temp = pygame.transform.scale(temp_img, (40, 60))
             self.star_mario.append(temp)
 
+        temp_img = pygame.Surface((17, 16))
+        temp_img.set_colorkey((0, 0, 0))
+        temp_img.blit(sheet, (0, 0), (59, 260, 17, 16))
+        temp = pygame.transform.scale(temp_img, (40, 40))
+        self.small_mario.append(temp)
+
         self.image = self.small_mario[0]
         self.rect = self.image.get_rect()
-        self.rect.x = 100
-        self.rect.y = self.settings.base_level
+        self.rect.x = 500  # 7800
         self.x_change = 0
         self.y_change = 0
 
         self.frame_counter = 0
         self.flash_frame = 0
+        self.star_timer = 0
 
         # if fired is true, shroomed must be true, but can have shroom true and fired false
         # set shroomed and star true for big star mario
@@ -97,6 +107,7 @@ class Mario(Sprite):
 
     def update(self):
         if self.dead:
+            self.image = self.small_mario[12]
             self.die_animate()
         else:
             if not self.shroomed and not self.star_pow:
@@ -109,6 +120,13 @@ class Mario(Sprite):
                 self.update_flowered()
             elif self.shroomed and self.star_pow:
                 self.update_big_star()
+
+        if self.star_pow:
+            if self.star_timer <= 250:
+                self.star_timer += 1
+            else:
+                self.star_timer = 0
+                self.star_pow = False
 
     def update_small(self):
         self.move()
@@ -394,113 +412,176 @@ class Mario(Sprite):
         self.frame_counter += 4
 
     def move(self):
-        self.calc_gravity()
+        if pygame.sprite.spritecollide(self, self.poles, False):
+            self.stats.reached_pole = True
+            self.frame_counter = 0
+            if self.rect.y != 508:
+                self.rect.y += 1
+            self.rect.x += self.x_change
+        else:
+            self.calc_gravity()
 
-        self.rect.x += self.x_change
+            if self.rect.left > 20:
+                self.rect.x += self.x_change
+            else:
+                self.rect.x = 22
 
-        # Checks if Mario collides with a pipe from the sides and prevents him from moving into it
-        pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
-        for pipe in pipe_collide:
-            if self.x_change > 0:
-                self.rect.right = pipe.rect.left
-            if self.x_change < 0:
-                self.rect.left = pipe.rect.right
+            # Checks if Mario collides with a pipe from the sides and prevents him from moving into it
+            pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
+            for pipe in pipe_collide:
+                if self.x_change > 0:
+                    self.rect.right = pipe.rect.left
+                if self.x_change < 0:
+                    self.rect.left = pipe.rect.right
 
-        self.rect.y += self.y_change
+            self.rect.y += self.y_change
 
-        # Checks if Mario collides with a pipe from the top and allows him to stand on it
-        pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
-        for pipe in pipe_collide:
-            if self.y_change > 0:
-                self.rect.bottom = pipe.rect.top
-            elif self.y_change < 0:
-                self.rect.top = pipe.rect.bottom
-            self.y_change = 0
+            # Checks if Mario collides with a pipe from the top and allows him to stand on it
+            pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
+            for pipe in pipe_collide:
+                if self.y_change > 0:
+                    self.rect.bottom = pipe.rect.top
+                elif self.y_change < 0:
+                    self.rect.top = pipe.rect.bottom
+                self.y_change = 0
 
-        # Checks collision with the bricks from the top and bottom so that he can stand on them and not go through them
-        brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
-        for brick in brick_collide:
-            if self.y_change > 0:
-                self.rect.bottom = brick.rect.top
-            elif self.y_change < 0:
-                self.rect.top = brick.rect.bottom
-            self.y_change = 0
+            brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
+            for brick in brick_collide:
+                if self.rect.right >= brick.rect.left and brick.rect.bottom == self.rect.bottom:
+                    self.x_change = 0
+                if self.rect.left <= brick.rect.right and brick.rect.bottom == self.rect.bottom:
+                    self.x_change = 0
 
-            # Checks if the brick with the star is hit, if it is then spawns a moving star, and change block to empty
-            if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
-                    and brick.block_type == 5 and not brick.change_brick:
-                brick.change_brick = True
-                upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
-                                  brick.rect.x, brick.rect.y - 20, 3)
-                self.upgrades.add(upgrade)
-                brick.change()
+            # Checks collision with the bricks from the top and bottom so
+            # that he can stand on them and not go through them
+            brick_collide = pygame.sprite.spritecollide(self, self.bricks, False)
+            for brick in brick_collide:
+                if self.y_change > 0:
+                    self.rect.bottom = brick.rect.top
+                elif self.y_change < 0:
+                    self.rect.top = brick.rect.bottom
+                self.y_change = 0
 
-            if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
-                    and brick.block_type == 6 and not brick.change_brick:
-                brick.change_brick = True
-                upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
-                                  brick.rect.x, brick.rect.y - 20, 2)
-                self.upgrades.add(upgrade)
-                brick.change()
-
-            # Checks if ? block is hit and if it is check what kind it is
-            if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
-                    and brick.block_type == 2:
-                brick.change()
-                # Checks if it is a ? block with a mushroom in it and spawns one when hit and change block to empty
-                if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y \
-                        and not self.shroomed:
+                # Checks if the brick with the star is hit, if it is then spawns a moving star,
+                # and change block to empty
+                if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
+                        and brick.block_type == 5 and not brick.change_brick:
                     brick.change_brick = True
+                    self.clips[10].play()
                     upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
-                                      brick.rect.x, brick.rect.y - 20, 0)
+                                      brick.rect.x, brick.rect.y - 20, 3)
                     self.upgrades.add(upgrade)
-                # Checks if Mario is big and if he is then mushroom block spawns a fire flower and change block to empty
-                if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y \
-                        and self.shroomed:
+                    brick.change()
+
+                if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
+                        and brick.block_type == 6 and not brick.change_brick:
                     brick.change_brick = True
+                    self.clips[10].play()
                     upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
-                                      brick.rect.x, brick.rect.y - 40, 1)
+                                      brick.rect.x, brick.rect.y - 20, 2)
                     self.upgrades.add(upgrade)
-            # Checks if ? block is regular one and spawns draws a coin for a bit when hit and change block to empty
-            if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
-                    and brick.block_type == 1:
-                brick.change()
+                    brick.change()
 
-            # Check if Mario is big and below the block and if he is and hits it the brick is removed
-            if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
-                    and brick.block_type == 0 and self.shroomed:
-                self.bricks.remove(brick)
+                # Checks if ? block is hit and if it is check what kind it is
+                if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
+                        and brick.block_type == 2:
+                    brick.change()
+                    brick.bouncing = True
+                    # Checks if it is a ? block with a mushroom in it and spawns one when hit and change block to empty
+                    if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y \
+                            and not self.shroomed:
+                        brick.change_brick = True
+                        self.clips[10].play()
+                        upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
+                                          brick.rect.x, brick.rect.y - 20, 0)
+                        self.upgrades.add(upgrade)
+                    # Checks if Mario is big and if he is then mushroom block
+                    # spawns a fire flower and change block to empty
+                    if brick.block_type == 2 and not brick.change_brick and brick.rect.y < self.rect.y \
+                            and self.shroomed:
+                        brick.change_brick = True
+                        self.clips[10].play()
+                        upgrade = Upgrade(self.screen, self.settings, self.pipes, self.bricks,
+                                          brick.rect.x, brick.rect.y - 40, 1)
+                        self.upgrades.add(upgrade)
+                # Checks if ? block is regular one and spawns draws a coin for a bit when hit and change block to empty
+                if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
+                        and brick.block_type == 1:
+                    if not brick.change_brick:
+                        self.clips[3].play()
+                    brick.change()
+                    brick.change_brick = True
+                    brick.bouncing = True
 
-        # Checks if Mario ate the mushroom, fire flower, or star and if he did set the corresponding flag to true
-        upgrade_collide = pygame.sprite.spritecollide(self, self.upgrades, True)
-        for upgrade in upgrade_collide:
-            if upgrade.up_type == 0:
-                self.shroomed = True
-            if upgrade.up_type == 1 and self.shroomed:
-                self.fired = True
-            if upgrade.up_type == 1:
-                self.stats.lives += 1
-            if upgrade.up_type == 3:
-                self.star_pow = True
+                # Check if Mario is big and below the block and if he is and hits it the brick is removed
+                if brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
+                        and brick.block_type == 0 and self.shroomed:
+                    self.bricks.remove(brick)
+                    self.clips[2].play()
+                elif brick.rect.x - 20 < self.rect.x < brick.rect.x + 20 and brick.rect.y < self.rect.y \
+                        and brick.block_type == 0 and not self.shroomed:
+                    brick.bouncing = True
+                    self.clips[1].play()
+
+            # Checks if Mario ate the mushroom, fire flower, or star and if he did set the corresponding flag to true
+            upgrade_collide = pygame.sprite.spritecollide(self, self.upgrades, True)
+            for upgrade in upgrade_collide:
+                if upgrade.up_type == 0:
+                    self.shroomed = True
+                    self.clips[11].play()
+                if upgrade.up_type == 1 and self.shroomed:
+                    self.fired = True
+                    self.clips[11].play()
+                if upgrade.up_type == 2:
+                    self.stats.lives += 1
+                    self.clips[5].play()
+                if upgrade.up_type == 3:
+                    self.star_pow = True
+                    self.radio.stop()
+                    self.clips[13].play(2)
+
+            enemy_collide = pygame.sprite.spritecollide(self, self.enemies, False)
+            for enemy in enemy_collide:
+                if enemy.rect.y > self.rect.y and enemy.enemy_type == 0:
+                    self.enemies.remove(enemy)
+                    self.clips[8].play()
+                # Transforms Koopa into shell
+                if enemy.rect.y > self.rect.y and enemy.enemy_type == 1:
+                    enemy.stunned = True
+                    self.clips[8].play()
+                # Makes shell move when in contact with it
+                if enemy.enemy_type == 1 and enemy.stunned:
+                    enemy.kicked = True
+                    self.clips[8].play()
+                elif enemy.enemy_type == 0 and enemy.rect.y - 5 <= self.rect.y:
+                    self.radio.stop()
+                    self.clips[4].play()
+                    self.dead = True
+                    self.frame_counter = 0
 
     def calc_gravity(self):
         """Calculates gravity and pulls Mario back down after being in the air for a period of time"""
         if self.y_change == 0:
             self.y_change = 1
         else:
-            self.y_change += .05
-        if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
-            self.y_change = 0
-            self.rect.y = self.settings.base_level - self.rect.height
+            self.y_change += .1
+
+        # Commented so that Mario can fall thru the pit
+        # if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
+            # self.y_change = 0
+            # self.rect.y = self.settings.base_level - self.rect.height
 
     def move_left(self):
-        self.x_change = -1
+        if self.rect.left <= 20:
+            self.x_change = 0
+        else:
+            self.x_change = -3
         self.moving_left = True
         self.facing_right = False
 
     def move_right(self):
         # self.x_change = 1
-        self.x_change = 5
+        self.x_change = 3
         self.moving_right = True
         self.facing_right = True
 
@@ -510,17 +591,21 @@ class Mario(Sprite):
         self.moving_right = False
 
     def move_jump(self):
-        self.y_change = -5
+        self.y_change = -6
         self.jump = True
 
     def blitme(self):
-        self.screen.blit(self.image, self.rect)
+        if self.stats.reached_pole and self.frame_counter <= 100:
+            self.frame_counter += 5
+            self.screen.blit(self.small_mario[13], self.rect)
+        else:
+            self.screen.blit(self.image, self.rect)
 
     def die_animate(self):
         if self.frame_counter == 0:
             self.image = self.small_mario[12]
         elif self.frame_counter <= 100:
-            self.rect.y -= 2
+            self.rect.y -= 1
         elif self.frame_counter <= 200:
             self.rect.y += 2
         self.frame_counter += 1
