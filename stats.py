@@ -6,10 +6,25 @@ class Stats:
     def __init__(self):
         self.game_active = True
         self.game_over = False
+
+        self.reached_pole = False
+        self.flag_reach_bot = False
+
+        self.activate_secret = False
+        self.activate_main_lvl = True
+        self.secret_level = False
+        self.main_level = True
+        self.return_main_level = False
+
         self.score = 0
         self.coins = 0
         self.time = 400
         self.lives = 3
+        self.timer = 0
+
+        self.high_score = 0
+        self.wr = open('highscore.txt', 'r+')
+        self.current = int(self.wr.read())
 
         self.tick = pygame.time.get_ticks()
 
@@ -31,3 +46,12 @@ class Stats:
         self.time = 400
         self.lives = 3
         self.game_over = False
+
+    def update_txt(self):
+        self.wr.seek(0)
+        self.current = int(self.wr.read())
+        self.high_score = self.current
+        if self.current < self.score:
+            self.wr.seek(0)
+            self.wr.truncate()
+            self.wr.write(str(self.score))

@@ -34,14 +34,12 @@ class Goomba(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.rect.x = self.screen_rect.centerx/2
-        self.rect.bottom = self.settings.base_level
-        self.x = self.rect.x
-        self.y = self.rect.y
-        self.x_change = 0.5
+        self.x_change = -1
         self.y_change = 0.0
 
         self.frame_counter = 0
+        # allows for Mario to check the difference between Goomba and Koopa
+        self.enemy_type = 0
 
     def update(self):
         self.move()
@@ -56,6 +54,9 @@ class Goomba(Sprite):
 
     def move(self):
         self.calc_gravity()
+
+        self.rect.x += self.x_change
+        self.rect.y += self.y_change
 
         pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
         for pipe in pipe_collide:
@@ -81,17 +82,11 @@ class Goomba(Sprite):
                 self.rect.bottom = block.rect.top
             self.y_change = 0
 
-        self.x += self.x_change
-        self.y += self.y_change
-
-        self.rect.x = self.x
-        self.rect.y = self.y
-
     def calc_gravity(self):
         if self.y_change == 0:
             self.y_change = 1
         else:
-            self.y_change += .05
+            self.y_change += .1
         if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
             self.y_change = 0
             self.rect.y = self.settings.base_level - self.rect.height
