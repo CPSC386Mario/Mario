@@ -34,8 +34,6 @@ class Goomba(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        #self.x = self.rect.x
-        #self.y = self.rect.y
         self.x_change = 0.5
         self.y_change = 0.0
 
@@ -83,9 +81,6 @@ class Goomba(Sprite):
 
         self.rect.x += self.x_change
         self.rect.y += self.y_change
-
-        #self.rect.x = self.x
-        #self.rect.y = self.y
 
     def calc_gravity(self):
         if self.y_change == 0:
