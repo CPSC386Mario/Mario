@@ -14,7 +14,7 @@ def update_screen(screen, mario, settings, level, pipes, display, stats, lvl_map
     upgrades.update()
     enemies.update()
     # level.blitme()
-    mario.update()
+    mario.update(stats, level)
     mario.blitme()
     mario.check_collision(screen, stats, display)
 

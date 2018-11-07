@@ -40,10 +40,10 @@ def run_game():
     pole = Pole(screen, settings)
     poles.add(pole)
 
-    mario = Mario(screen, settings, pipes, bricks, upgrades, stats, enemies, poles, secret_bricks, secret_pipes)
     lvl_map = None
     level = Level(screen, settings, pipes, bricks, upgrades, enemies, flags, poles)
     display = Display(screen, stats)
+    mario = Mario(screen, settings, pipes, bricks, upgrades, stats, enemies, poles, secret_bricks, secret_pipes, level)
 
 
     while True:

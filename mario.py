@@ -5,7 +5,7 @@ from upgrade import Upgrade
 
 class Mario(Sprite):
 
-    def __init__(self, screen, settings, pipes, bricks, upgrades, stats, enemies, poles, secret_bricks, secret_pipes):
+    def __init__(self, screen, settings, pipes, bricks, upgrades, stats, enemies, poles, secret_bricks, secret_pipes, level):
         super(Mario, self).__init__()
         self.screen = screen
         self.settings = settings
@@ -101,10 +101,10 @@ class Mario(Sprite):
         # counts number of coins from the multi coin brick block
         self.count = 0
 
-    def update(self):
+    def update(self, stats, level):
         self.invincible()
         if self.dead:
-            self.die_animate()
+            self.die_animate(stats, level)
         else:
             if not self.shroomed and not self.star_pow:
                 self.update_small()
@@ -605,7 +605,6 @@ class Mario(Sprite):
             # Makes shell move when in contact with it
             if enemy.enemy_type == 1 and enemy.stunned and not self.star_pow:
                 enemy.kicked = True
-                print("OMG")
             if enemy.enemy_type == 0 and enemy.rect.y <= self.rect.y and not self.star_pow and not self.shroomed \
                     and not self.invinc:
                 self.dead = True
@@ -640,8 +639,7 @@ class Mario(Sprite):
         self.facing_right = False
 
     def move_right(self):
-        # self.x_change = 3
-        self.x_change = 5
+        self.x_change = 3
         self.moving_right = True
         self.facing_right = True
 
@@ -657,12 +655,25 @@ class Mario(Sprite):
     def blitme(self):
         self.screen.blit(self.image, self.rect)
 
-    def die_animate(self):
-        if self.frame_counter == 0:
-            self.image = self.small_mario[12]
-        elif self.frame_counter <= 100:
+    def die_animate(self, stats, level):
+        self.image = self.small_mario[12]
+        if self.frame_counter <= 100:
             self.rect.y -= 2
         elif self.frame_counter <= 200:
             self.rect.y += 2
+        else:
+            if stats.lives is not 0:
+                self.dead = False
+                self.reset_mario(level)
+                stats.lives -= 1
+            else:
+                stats.game_over = True
+                if self.frame_counter >= 400:
+                    stats.reset_stats()
+
         self.frame_counter += 1
 
+    def reset_mario(self, level):
+        level.shifting_world(-level.shift_world)
+        self.rect.x = 100
+        self.rect.y = 100
