@@ -23,7 +23,7 @@ class Koopa(Sprite):
         self.image = pygame.transform.scale(self.image, (40, 40))
         self.rect = self.image.get_rect()
 
-        self.moving_left = False
+        self.moving_left = True
         self.kicked = False
 
         for i in range(0, 5):
@@ -35,37 +35,22 @@ class Koopa(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.x_change = -1
+        self.x_change = -0.5
         self.y_change = 0.0
+        self.x = self.rect.x
+        self.y = self.rect.y
 
         self.frame_counter = 0
         self.stunned = False
-        self.set_direction = False
 
         # allows for Mario to check the difference between Goomba and Koopa
         self.enemy_type = 1
 
-    def update(self):
+    def update(self, mario):
         if self.stunned:
             self.image = self.frames[4]
             if self.kicked:
-                # Kills all enemies it comes into contact with in shell form
-
-                if self.rect.x >= self.mario.rect.x:
-                    if not self.set_direction:
-                        self.x_change = 3
-                        self.set_direction = True
-                    self.move()
-                if self.kicked and self.rect.x <= self.mario.rect.x:
-                    if not self.set_direction:
-                        self.x_change = -3
-                        self.set_direction = True
-                    self.move()
-                collide_enemies = pygame.sprite.spritecollide(self, self.enemies, False)
-                for enemy in collide_enemies:
-                    if enemy.enemy_type == 0:
-                        self.enemies.remove(enemy)
-
+                self.move()
         else:
             self.move()
             if self.frame_counter <= 100:
@@ -84,36 +69,29 @@ class Koopa(Sprite):
                 self.frame_counter = 0
 
     def move(self):
-        self.calc_gravity()
+        collision = pygame.sprite.spritecollide(self, self.blocks, False)
+        if abs(self.rect.x - self.mario.rect.x) <= 2000 or not collision:
+            self.calc_gravity()
 
-        pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
-        for pipe in pipe_collide:
-            if self.x_change > 0:
-                self.rect.right = pipe.rect.left
-            if self.x_change < 0:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = pipe.rect.right
-            self.x_change *= -1
-            self.swap_bool()
+            pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
+            for pipe in pipe_collide:
+                if self.x_change > 0:
+                    self.rect.right = pipe.rect.left - 2
+                if self.x_change < 0:
+                    # Otherwise if we are moving left, do the opposite.
+                    self.rect.left = pipe.rect.right + 2
+                self.x_change *= -1
+                self.swap_bool()
 
-        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
-        for block in block_collide:
-            if self.x_change > 0:
-                self.rect.right = block.rect.left
-            if self.x_change < 0:
-                # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
-            self.x_change *= -1
-            self.swap_bool()
+            if self.stunned:
+                self.x += self.x_change * 8
+                self.y += self.y_change * 8
+            else:
+                self.x += self.x_change
+                self.y += self.y_change
 
-        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
-        for block in block_collide:
-            if self.y_change > 0:
-                self.rect.bottom = block.rect.top
-            self.y_change = 0
-
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
+            self.rect.x = self.x
+            self.rect.y = self.y
 
     def calc_gravity(self):
         if self.y_change == 0:

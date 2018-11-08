@@ -4,12 +4,13 @@ from pygame.sprite import Sprite
 
 class Goomba(Sprite):
 
-    def __init__(self, screen, settings, pipes, blocks):
+    def __init__(self, screen, settings, pipes, blocks, ground):  # +
         super(Goomba, self).__init__()
         self.screen = screen
         self.settings = settings
         self.pipes = pipes
         self.blocks = blocks
+        self.ground = ground  # +
         self.screen_rect = screen.get_rect()
 
         self.frames = []
@@ -34,15 +35,19 @@ class Goomba(Sprite):
 
         self.image = self.frames[0]
         self.rect = self.image.get_rect()
-        self.x_change = -1
+        self.x = self.rect.x
+        self.y = self.rect.y
+        self.x_change = -0.5
         self.y_change = 0.0
 
         self.frame_counter = 0
         # allows for Mario to check the difference between Goomba and Koopa
         self.enemy_type = 0
 
-    def update(self):
-        self.move()
+    def update(self, mario):
+        collision = pygame.sprite.spritecollide(self, self.blocks, False)
+        if abs(self.rect.x - mario.rect.x) <= 1500 or not collision:
+            self.move()
         if self.frame_counter <= 100:
             self.image = self.frames[0]
             self.frame_counter += 1
@@ -55,38 +60,35 @@ class Goomba(Sprite):
     def move(self):
         self.calc_gravity()
 
-        self.rect.x += self.x_change
-        self.rect.y += self.y_change
-
         pipe_collide = pygame.sprite.spritecollide(self, self.pipes, False)
         for pipe in pipe_collide:
             if self.x_change > 0:
-                self.rect.right = pipe.rect.left
+                self.rect.right = pipe.rect.left - 2
             if self.x_change < 0:
                 # Otherwise if we are moving left, do the opposite.
-                self.rect.left = pipe.rect.right
+                self.rect.left = pipe.rect.right + 2
             self.x_change *= -1
 
-        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
+        block_collide = pygame.sprite.spritecollide(self, self.ground, False)
         for block in block_collide:
             if self.x_change > 0:
-                self.rect.right = block.rect.left
+                self.rect.right = block.rect.left - 2
             if self.x_change < 0:
                 # Otherwise if we are moving left, do the opposite.
-                self.rect.left = block.rect.right
+                self.rect.left = block.rect.right + 2
             self.x_change *= -1
 
-        block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
-        for block in block_collide:
-            if self.y_change > 0:
-                self.rect.bottom = block.rect.top
-            self.y_change = 0
+        self.x += self.x_change
+        self.y += self.y_change
+
+        self.rect.x = self.x
+        self.rect.y = self.y
 
     def calc_gravity(self):
         if self.y_change == 0:
             self.y_change = 1
         else:
-            self.y_change += .1
+            self.y_change += .05
         if self.rect.y >= self.settings.base_level - self.rect.height and self.y_change >= 0:
             self.y_change = 0
             self.rect.y = self.settings.base_level - self.rect.height
