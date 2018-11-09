@@ -7,7 +7,7 @@ class Settings:
         self.screen_width = 1000
         self.screen_height = 680
         # Sets background color
-        self.bg_color = (0, 255, 255)
+        self.bg_color = (0, 0, 0)
 
         # Mario settings
         self.mario_limit = 3

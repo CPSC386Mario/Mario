@@ -1,30 +1,47 @@
 from brick import Brick
 from goomba import Goomba
 from koopa import Koopa
+from upgrade import Upgrade
 
 
 class Map:
     """Implements Maze"""
     BRICK_SIZE = 40
 
-    def __init__(self, screen, settings, bricks, pipes, mario,enemies, ground, mapfile):  # +
+    def __init__(self, screen, settings, bricks, pipes, mario, enemies, ground, upgrades, stats, secret_bricks):
         self.screen = screen
         self.settings = settings
+        self.stats = stats
         self.bricks = bricks
+        self.secret_bricks = secret_bricks
         self.pipes = pipes
         self.mario = mario
+        self.upgrades = upgrades
         self.enemies = enemies
-        self.filename = mapfile
         self.ground = ground  # +
-        with open(self.filename, 'r') as f:
-            self.rows = f.readlines()
+        self.main_level = 'images/level_loc.txt'
+        self.secret_level = 'images/Underground_Level.txt'
+
+        # Checks if it is main level or secret level and opens corresponding file
+        if not self.stats.activate_secret:
+            with open(self.main_level, 'r') as f:
+                self.rows = f.readlines()
+                if self.stats.return_main_level:
+                    # Puts Mario at the pipe near the end
+                    self.mario.rect.x = 7210
+                    self.mario.rect.y = 500
+        if self.stats.activate_secret:
+            with open(self.secret_level, 'r') as f:
+                self.rows = f.readlines()
+                # Has Mario fall into secret level
+                self.mario.rect.x = 100
+                self.mario.rect.y = 100
 
         self.brick = None
         self.goomba = None
         self.koopa = None
+        self.coin = None
         self.deltax = self.deltay = Map.BRICK_SIZE
-
-    def __str__(self): return 'map(' + self.filename + ')'
 
     def build_brick(self):
         dx, dy = self.deltax, self.deltay
@@ -33,6 +50,7 @@ class Map:
             row = self.rows[nrow]
             for ncol in range(len(row)):
                 col = row[ncol]
+                # Checks for specific characters and calls corresponding function
                 if col == 'B':
                     Map.create_brick(self, ncol*dx, nrow*dy, 0)
                 if col == '?':
@@ -51,8 +69,17 @@ class Map:
                     Map.create_enemy(self, ncol*dx, nrow*dy, 0)
                 if col == 'K':
                     Map.create_enemy(self, ncol*dx, nrow*dy, 1)
+                if col == 'A':
+                    Map.create_secret_brick(self, ncol * dx, nrow * dy, 7)
+                if col == 'N':
+                    Map.create_secret_brick(self, ncol * dx, nrow * dy, 8)
+                if col == 'C':
+                    Map.create_coin(self, ncol * dx, nrow * dy, 4)
+                if col == 'L':
+                    Map.create_brick(self, ncol*dx, nrow*dy, 9)
 
     def blitme(self):
+        """Draws the bricks into the window"""
         for rect in self.bricks:
             self.screen.blit(self.brick.image, rect)
 
@@ -63,6 +90,16 @@ class Map:
         self.bricks.add(self.brick)
         if num == 4:  # +
             self.ground.add(self.brick)  # +
+
+    def create_secret_brick(self, x, y, num):
+        self.brick = Brick(self.screen, self.settings, num)
+        self.brick.rect.x = x
+        self.brick.rect.y = y
+        self.secret_bricks.add(self.brick)
+
+    def create_coin(self, x, y, num):
+        self.coin = Upgrade(self.screen, self.settings, self.pipes, self.bricks, x, y, num)
+        self.upgrades.add(self.coin)
 
     def create_enemy(self, x, y, num):
         if num == 0:

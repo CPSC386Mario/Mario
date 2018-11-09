@@ -42,6 +42,7 @@ class Koopa(Sprite):
 
         self.frame_counter = 0
         self.stunned = False
+        self.set_direction = False
 
         # allows for Mario to check the difference between Goomba and Koopa
         self.enemy_type = 1
@@ -50,7 +51,23 @@ class Koopa(Sprite):
         if self.stunned:
             self.image = self.frames[4]
             if self.kicked:
-                self.move()
+                # Kills all enemies it comes into contact with in shell form
+
+                if self.rect.x >= self.mario.rect.x:
+                    if not self.set_direction:
+                        self.x_change = 1
+                        self.set_direction = True
+                    self.move()
+                if self.kicked and self.rect.x <= self.mario.rect.x:
+                    if not self.set_direction:
+                        self.x_change = -1
+                        self.set_direction = True
+                    self.move()
+                collide_enemies = pygame.sprite.spritecollide(self, self.enemies, False)
+                for enemy in collide_enemies:
+                    if enemy.enemy_type == 0:
+                        self.enemies.remove(enemy)
+
         else:
             self.move()
             if self.frame_counter <= 100:
@@ -82,6 +99,22 @@ class Koopa(Sprite):
                     self.rect.left = pipe.rect.right + 2
                 self.x_change *= -1
                 self.swap_bool()
+
+            block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
+            for block in block_collide:
+                if self.x_change > 0:
+                    self.rect.right = block.rect.left
+                if self.x_change < 0:
+                    # Otherwise if we are moving left, do the opposite.
+                    self.rect.left = block.rect.right
+                self.x_change *= -1
+                self.swap_bool()
+
+            block_collide = pygame.sprite.spritecollide(self, self.blocks, False)
+            for block in block_collide:
+                if self.y_change > 0:
+                    self.rect.bottom = block.rect.top
+                self.y_change = 0
 
             if self.stunned:
                 self.x += self.x_change * 8
